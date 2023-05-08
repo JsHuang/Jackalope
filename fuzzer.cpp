@@ -57,14 +57,12 @@ void Fuzzer::ParseOptions(int argc, char **argv) {
   if (!option) PrintUsage();
   this->out_dir = option;
 
-  option = GetOption("-ext", argc, argv);
-  if (!option)
-      this->ext = "";
-  else
-      this->ext = option;
-
-  printf("Ext Option : %s\n",this->ext.c_str());
-  
+  option = GetOption("-delivery_dir", argc, argv);
+  if (!option) {
+    delivery_dir = out_dir;
+  } else {
+    delivery_dir = option;
+  }
 
   num_threads = GetIntOption("-nthreads", argc, argv, 1);
 
@@ -123,6 +121,8 @@ void Fuzzer::ParseOptions(int argc, char **argv) {
   incremental_coverage = GetBinaryOption("-incremental_coverage", argc, argv, true);
   
   add_all_inputs = GetBinaryOption("-add_all_inputs", argc, argv, false);
+  
+  dump_coverage = GetBinaryOption("-dump_coverage", argc, argv, false);
 }
 
 void Fuzzer::SetupDirectories() {
@@ -304,7 +304,7 @@ RunResult Fuzzer::RunSampleAndGetCoverage(ThreadContext *tc, Sample *sample, Cov
       }
     }
     if (!delivery_successful) {
-       ("Repeatedly failed to deliver sample");
+      FATAL("Repeatedly failed to deliver sample");
     }
   }
 
@@ -862,9 +862,18 @@ void Fuzzer::RunFuzzerThread(ThreadContext *tc) {
   }
 }
 
+void Fuzzer::DumpCoverage() {
+  std::string out_file = DirJoin(out_dir, "coverage.txt");
+  WriteCoverage(fuzzer_coverage, (char *)out_file.c_str());
+}
+
 void Fuzzer::SaveState(ThreadContext *tc) {
   // don't save during input sample processing
-  if(state == INPUT_SAMPLE_PROCESSING) return;
+    if (state == INPUT_SAMPLE_PROCESSING)
+    {
+        printf("Input Sampling Stage, not saving state...\n");
+        return;
+    }
 
   output_mutex.Lock();
   coverage_mutex.Lock();
@@ -898,6 +907,8 @@ void Fuzzer::SaveState(ThreadContext *tc) {
   fwrite(&sentry, sizeof(sentry), 1, fp);
 
   fclose(fp);
+  
+  if(dump_coverage) DumpCoverage();
 
   coverage_mutex.Unlock();
   output_mutex.Unlock();
@@ -1040,9 +1051,7 @@ SampleDelivery *Fuzzer::CreateSampleDelivery(int argc, char **argv, ThreadContex
       extension = string(".") + string(extension_opt);
     }
 
-    string outfile = DirJoin(out_dir, string("input_") + std::to_string(tc->thread_id) + extension);
-    if (this->ext != "")
-        outfile = outfile + string(".") + this->ext;
+    string outfile = DirJoin(delivery_dir, string("input_") + std::to_string(tc->thread_id) + extension);
     ReplaceTargetCmdArg(tc, "@@", outfile.c_str());
 
     FileSampleDelivery* sampleDelivery = new FileSampleDelivery();

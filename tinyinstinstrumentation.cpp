@@ -77,10 +77,10 @@ RunResult TinyInstInstrumentation::Run(int argc, char **argv, uint32_t init_time
         FATAL("Process crashed before reaching the target method\n");
         break;
       case DEBUGGER_HANGED:
-        FATAL("Process hanged before reaching the target method\n");
+        WARN("[jin] Process hanged before reaching the target method\n");
         break;
       case DEBUGGER_PROCESS_EXIT:
-        FATAL("Process exited before reaching the target method\n");
+        WARN("[jin] Process exited before reaching the target method\n");
         break;
       default:
         FATAL("An unknown problem occured before reaching the target method\n");

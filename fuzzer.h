@@ -51,8 +51,8 @@ class CoverageClient;
 
 #define MAX_IDENTICAL_CRASHES 4
 
-// save state every 5 minutes
-#define FUZZER_SAVE_INERVAL (5 * 60)
+// save state every 3 minutes
+#define FUZZER_SAVE_INERVAL (3 * 60)
 
 #define MIN_SAMPLES_TO_GENERATE 10
 
@@ -200,13 +200,15 @@ protected:
   
   void SaveState(ThreadContext *tc);
   void RestoreState(ThreadContext *tc);
+  void DumpCoverage();
 
   std::string in_dir;
   std::string out_dir;
+  std::string delivery_dir;
   std::string sample_dir;
   std::string crash_dir;
   std::string hangs_dir;
-  std::string ext;
+
   std::string log_file_name;
   std::time_t start_time;
   std::time_t cur_time;
@@ -255,6 +257,8 @@ protected:
   bool incremental_coverage;
   
   bool add_all_inputs;
+  
+  bool dump_coverage;
   
   Mutex crash_mutex;
   std::unordered_map<std::string, int> unique_crashes;
