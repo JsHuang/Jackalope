@@ -56,7 +56,7 @@ void Fuzzer::ParseOptions(int argc, char **argv) {
   option = GetOption("-out", argc, argv);
   if (!option) PrintUsage();
   this->out_dir = option;
-
+  
   option = GetOption("-delivery_dir", argc, argv);
   if (!option) {
     delivery_dir = out_dir;
@@ -864,16 +864,12 @@ void Fuzzer::RunFuzzerThread(ThreadContext *tc) {
 
 void Fuzzer::DumpCoverage() {
   std::string out_file = DirJoin(out_dir, "coverage.txt");
-  WriteCoverage(fuzzer_coverage, (char *)out_file.c_str());
+  WriteCoverage(fuzzer_coverage, out_file.c_str());
 }
 
 void Fuzzer::SaveState(ThreadContext *tc) {
   // don't save during input sample processing
-    if (state == INPUT_SAMPLE_PROCESSING)
-    {
-        printf("Input Sampling Stage, not saving state...\n");
-        return;
-    }
+  if(state == INPUT_SAMPLE_PROCESSING) return;
 
   output_mutex.Lock();
   coverage_mutex.Lock();
