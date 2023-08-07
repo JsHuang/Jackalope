@@ -250,7 +250,12 @@ void Fuzzer::Run(int argc, char **argv) {
         num_offsets_before = num_offsets;
     }
     
-    printf("\nTotal execs: %lld\nUnique samples: %lld (%lld discarded)\nCrashes: %lld (%lld unique)\nHangs: %lld\nOffsets: %zu\nExecs/s: %lld\n", total_execs, num_samples, num_samples_discarded, num_crashes, num_unique_crashes, num_hangs, num_offsets, (total_execs - last_execs) / secs_to_sleep);
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    printf("\nTotal execs: %lld\nUnique samples: %lld (%lld discarded)\n", total_execs, num_samples, num_samples_discarded);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+    printf("Crashes: %lld (%lld unique)\nHangs: %lld\n", num_crashes, num_unique_crashes, num_hangs);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    printf("Offsets: %zu\nExecs/s: %lld\n", num_offsets, (total_execs - last_execs) / secs_to_sleep);
     //printf("Tiks: %lld \n", toks);
     cur_time = time(NULL);
     secs_since_last_new = std::difftime(cur_time, last_new_time);
@@ -1028,11 +1033,19 @@ PRNG *Fuzzer::CreatePRNG(int argc, char **argv, ThreadContext *tc) {
 }
 
 Instrumentation *Fuzzer::CreateInstrumentation(int argc, char **argv, ThreadContext *tc) {
-#ifdef linux
-  SanCovInstrumentation *instrumentation = new SanCovInstrumentation(tc->thread_id);
-#else
-  TinyInstInstrumentation *instrumentation = new TinyInstInstrumentation();
+  Instrumentation *instrumentation = NULL;
+
+#if defined(linux) && !defined(__ANDROID__)
+  char *option = GetOption("-instrumentation", argc, argv);
+  if(option && !strcmp(option, "sancov")) {
+    instrumentation = new SanCovInstrumentation(tc->thread_id);
+  }
 #endif
+
+  if(!instrumentation) {
+    instrumentation = new TinyInstInstrumentation();
+  }
+
   instrumentation->Init(argc, argv);
   return instrumentation;
 }
