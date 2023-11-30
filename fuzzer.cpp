@@ -166,7 +166,7 @@ void Fuzzer::Run(int argc, char **argv) {
     return;
   }
 
-  printf("Fuzzer version 1.00\n");
+  printf("Fuzzer version 1.00 @2023.08.07\n");
 
   samples_pending = 0;
   
