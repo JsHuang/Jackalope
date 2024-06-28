@@ -166,7 +166,7 @@ void Fuzzer::Run(int argc, char **argv) {
     return;
   }
 
-  printf("Fuzzer version 1.00 @2023.08.07\n");
+  printf("Fuzzer version 1.00 @2024.06.28\n");
 
   samples_pending = 0;
   
@@ -254,7 +254,7 @@ void Fuzzer::Run(int argc, char **argv) {
     printf("\nTotal execs: %lld\nUnique samples: %lld (%lld discarded)\n", total_execs, num_samples, num_samples_discarded);
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
     printf("Crashes: %lld (%lld unique)\n", num_crashes, num_unique_crashes);
-    SetConsoleTextAttribute(hConsole, 0xE); //ÉèÖÃÎªµ­»ÆÉ«
+    SetConsoleTextAttribute(hConsole, 0xE); //è®¾ç½®ä¸ºæ·¡é»„è‰²
     printf("Hangs: %lld\n", num_hangs);
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     printf("Offsets: %zu\nExecs/s: %lld\n", num_offsets, (total_execs - last_execs) / secs_to_sleep);
@@ -264,7 +264,7 @@ void Fuzzer::Run(int argc, char **argv) {
     secs_since_start = std::difftime(cur_time, start_time);
     //printf("Start Time      : %s", ctime(&start_time) );
     printf("Continued Time  : %lld hours %lld mins %lld secs\n", secs_since_start / 3600, (secs_since_start % 3600) / 60, (secs_since_start % 60));
-    SetConsoleTextAttribute(hConsole, 0x2); //ÉèÖÃÎªÇ³ÂÌÉ«
+    SetConsoleTextAttribute(hConsole, 0x2); //è®¾ç½®ä¸ºæµ…ç»¿è‰²
     printf("Last New Offs   : %lld hours %lld mins %lld secs\n", secs_since_last_new/3600, (secs_since_last_new%3600)/60 , (secs_since_last_new % 60));
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
     if ((secs_since_last_new - secs_since_last_new%5)%1800 == 0 && secs_since_last_new>100) {
