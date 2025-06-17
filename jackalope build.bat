@@ -1,5 +1,5 @@
 @echo off
-git clone --recurse-submodules git@github.com:googleprojectzero/TinyInst.git
+git clone --recurse-submodules https://github.com/googleprojectzero/TinyInst.git
 mkdir build32
 mkdir build64
 cd build32
